@@ -1,62 +1,23 @@
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
-#include <windows.h>
-
+#include <Windows.h>
 #include "resource.h"
-#include "loguru/loguru.hpp"
+#include "loguru/loguru.cpp"
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName);
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int loop(HINSTANCE hInstance, LPCWCHAR pClassName);
 
-int CALLBACK WinMain(
-	HINSTANCE	hInstance,
-	HINSTANCE	hPervInstance,
-	LPSTR		lpCmdLine,
-	int			cCmdShow
-)
+
+int main(int argc, char** argv)
 {
-	// Initialize Console
-	AllocConsole();
-
-	HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-	int hCrt = _open_osfhandle((long)handle_out, _O_TEXT);
-	FILE* hf_out = _fdopen(hCrt, "w");
-	setvbuf(hf_out, NULL, _IONBF, 1);
-	*stdout = *hf_out;
-
-	HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
-	hCrt = _open_osfhandle((long)handle_in, _O_TEXT);
-	FILE* hf_in = _fdopen(hCrt, "r");
-	setvbuf(hf_in, NULL, _IONBF, 128);
-	*stdin = *hf_in;
-	// End of Console Initialization
-
+	const auto handle = GetModuleHandle(NULL);
 	const auto pClassName = L"hw3d Oppai";
-	HWND hWnd = build_window(hInstance, pClassName);
-	//MessageBox(hWnd, L"Hello", L"Error", 0);
-	return loop(hInstance, pClassName);
+	loguru::init(argc, argv);
+	build_window(handle, pClassName);
+	return loop(handle, pClassName);
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName)
 {
-	static LPSTR title[500];
-
-	switch (msg)
-	{
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		return 0;
-		break;
-	case WM_CHAR:
-		break;
-	}
-	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-
-HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName) {
 	// register window class
 	WNDCLASSEX wc = { 0 };
 	wc.cbSize = sizeof(wc);
@@ -88,6 +49,21 @@ HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName) {
 	return hWnd;
 }
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	static LPSTR title[500];
+
+	switch (msg)
+	{
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		return 0;
+		break;
+	case WM_CHAR:
+		break;
+	}
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
 
 int loop(HINSTANCE hInstance, LPCWCHAR pClassName)
 {
@@ -107,5 +83,3 @@ int loop(HINSTANCE hInstance, LPCWCHAR pClassName)
 	else
 		return msg.wParam;
 }
-
-

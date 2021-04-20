@@ -151,9 +151,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="modules\Graphics.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Window.cpp" />
+    <ClCompile Include="modules\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon\icon.ico" />
@@ -162,6 +162,8 @@
     <None Include="icon\icon.ani" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="modules\Graphics.hpp" />
+    <ClInclude Include="modules\Window.hpp" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

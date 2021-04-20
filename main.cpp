@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <optional>
 #include "resource.h"
-#include "loguru/loguru.hpp"
-#include "loguru/loguru.cpp"
-#include "Window.cpp"
-#include "Graphics.cpp"
+#include "modules/loguru/loguru.hpp"
+#include "modules/loguru/loguru.cpp"
+#include "modules/Window.hpp"
+#include "modules/Graphics.hpp"
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -17,6 +17,7 @@ int main(int argc, char** argv)
 {
 	loguru::init(argc, argv);
 	Window window{ GetModuleHandle(NULL), WndProc };
+	Graphics graphics = Graphics(window.hWnd);
 	int res = Play(window.hWnd);
 	return res;
 }

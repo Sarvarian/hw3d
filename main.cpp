@@ -96,7 +96,7 @@ std::optional<int> ProcessMessages()
 
 int Play(const HWND hWnd)
 {
-	constexpr double max_frame_delay = (1. / 30.) * 1000.;
+	constexpr double max_frame_delay = (1. / 60.) * 1000.;
 	FILETIME frame_begin_time = { 0 };
 	FILETIME frame_end_time = { 0 };
 	ULARGE_INTEGER ftc_first_time = { 0 };

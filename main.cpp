@@ -12,7 +12,6 @@ using namespace loguru;
 
 HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-std::optional<int> ProcessMessages();
 int Play(const HWND hWnd);
 
 
@@ -27,7 +26,7 @@ int main(int argc, char** argv)
 	return res;
 }
 
-HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName)
+HWND build_window(const HINSTANCE hInstance, const LPCWCHAR pClassName)
 {
 	// register window class
 	WNDCLASSEX wc = { 0 };
@@ -60,7 +59,7 @@ HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName)
 	return hWnd;
 }
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(const HWND hWnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
 {
 	static LPSTR title[500];
 

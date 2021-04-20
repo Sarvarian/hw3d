@@ -1,7 +1,3 @@
-#ifdef _DEBUG
-#include <iostream>
-#endif // _DEBUG
-
 #include <Windows.h>
 #include <algorithm>
 #include <optional>

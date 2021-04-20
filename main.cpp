@@ -3,7 +3,8 @@
 #endif // _DEBUG
 
 #include <Windows.h>
-#include <math.h>
+#include <algorithm>
+#include <optional>
 #include "resource.h"
 #include "loguru/loguru.hpp"
 #include "loguru/loguru.cpp"
@@ -11,75 +12,19 @@ using namespace loguru;
 
 HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+std::optional<int> ProcessMessages();
+int Play(const HWND hWnd);
 
 
 int main(int argc, char** argv)
 {
 	constexpr LPCWCHAR pClassName = L"hw3d Oppai";
-	constexpr double max_frame_delay = (1. / 30.) * 1000.;
 	const HMODULE handle = GetModuleHandle(NULL);
-	FILETIME frame_begin_time = { 0 };
-	FILETIME frame_end_time = { 0 };
-	ULARGE_INTEGER ftc_first_time = { 0 };
-	ULARGE_INTEGER ftc_second_time = { 0 };
-	double frame_time = 0;
-	double delta = 0;
-
-	MSG msg = { 0 };
-	BOOL gResult = 0;
-
 	loguru::init(argc, argv);
 	HWND hWnd = build_window(handle, pClassName);
-	GetSystemTimeAsFileTime(&frame_begin_time);
-	GetSystemTimeAsFileTime(&frame_end_time);
-	
-
-	// message bump
-	while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0)
-	{
-		TranslateMessage(&msg);
-		DispatchMessageW(&msg);
-
-		// Start Frame
-		GetSystemTimeAsFileTime(&frame_begin_time);
-
-		// Loop Begin
-
-
-		// Calculating delta
-		ftc_first_time.HighPart = frame_end_time.dwHighDateTime;
-		ftc_first_time.LowPart = frame_end_time.dwLowDateTime;
-		FILETIME pre_delta_time;
-		GetSystemTimeAsFileTime(&pre_delta_time);
-		ftc_second_time.HighPart = pre_delta_time.dwHighDateTime;
-		ftc_second_time.LowPart = pre_delta_time.dwLowDateTime;
-		double delta = (ftc_second_time.QuadPart - ftc_first_time.QuadPart) / 10000.;
-
-		// End Frame
-		GetSystemTimeAsFileTime(&frame_end_time);
-
-		// Calculating frame_time
-		ftc_first_time.HighPart = frame_begin_time.dwHighDateTime;
-		ftc_first_time.LowPart = frame_begin_time.dwLowDateTime;
-		ftc_second_time.HighPart = frame_end_time.dwHighDateTime;
-		ftc_second_time.LowPart = frame_end_time.dwLowDateTime;
-		frame_time = (ftc_second_time.QuadPart - ftc_first_time.QuadPart) / 10000.;
-#ifdef _DEBUG
-		std::cout << delta / 1000. << std::endl;
-#endif // _DEBUG
-
-		//LOG_s(INFO) << "Hello";
-
-		// Loop End
-		Sleep((DWORD)std::clamp(max_frame_delay - frame_time, 0., max_frame_delay));
-	}
-
+	int res = Play(hWnd);
 	UnregisterClassW(pClassName, handle);
-
-	if (gResult == -1)
-		return -1;
-	else
-		return msg.wParam;
+	return res;
 }
 
 HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName)
@@ -129,4 +74,88 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+std::optional<int> ProcessMessages()
+{
+	MSG msg;
+
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+	{
+		if (msg.message == WM_QUIT)
+		{
+			return msg.wParam;
+		}
+
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	return {};
+}
+
+int Play(const HWND hWnd)
+{
+	constexpr double max_frame_delay = (1. / 30.) * 1000.;
+	FILETIME frame_begin_time = { 0 };
+	FILETIME frame_end_time = { 0 };
+	ULARGE_INTEGER ftc_first_time = { 0 };
+	ULARGE_INTEGER ftc_second_time = { 0 };
+	double frame_time = 0;
+	double delta = 0;
+
+	GetSystemTimeAsFileTime(&frame_begin_time);
+	GetSystemTimeAsFileTime(&frame_end_time);
+
+	while (true)
+	{
+		if (const std::optional<int> ecode = ProcessMessages())
+			return *ecode;
+
+		// Start Frame
+		GetSystemTimeAsFileTime(&frame_begin_time);
+
+		// Loop Begin
+
+
+		// Calculating delta
+		ftc_first_time.HighPart = frame_end_time.dwHighDateTime;
+		ftc_first_time.LowPart = frame_end_time.dwLowDateTime;
+		FILETIME pre_delta_time;
+		GetSystemTimeAsFileTime(&pre_delta_time);
+		ftc_second_time.HighPart = pre_delta_time.dwHighDateTime;
+		ftc_second_time.LowPart = pre_delta_time.dwLowDateTime;
+		double delta = (ftc_second_time.QuadPart - ftc_first_time.QuadPart) / 10000.;
+
+		// End Frame
+		GetSystemTimeAsFileTime(&frame_end_time);
+
+		// Calculating frame_time
+		ftc_first_time.HighPart = frame_begin_time.dwHighDateTime;
+		ftc_first_time.LowPart = frame_begin_time.dwLowDateTime;
+		ftc_second_time.HighPart = frame_end_time.dwHighDateTime;
+		ftc_second_time.LowPart = frame_end_time.dwLowDateTime;
+		frame_time = (ftc_second_time.QuadPart - ftc_first_time.QuadPart) / 10000.;
+#ifdef _DEBUG
+		{
+			char buf[_CVTBUFSIZE];
+			int err;
+
+			err = _gcvt_s(buf, _CVTBUFSIZE, delta, 5);
+
+			if (err != 0)
+			{
+				printf("_gcvt_s failed with error code %d\n", err);
+				exit(1);
+			}
+
+			SetWindowTextA(hWnd, buf);
+		}
+#endif // _DEBUG
+
+		//LOG_s(INFO) << "Hello";
+
+		// Loop End
+		Sleep((DWORD)std::clamp(max_frame_delay - frame_time, 0., max_frame_delay));
+	}
 }

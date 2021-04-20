@@ -55,3 +55,8 @@ Graphics::~Graphics()
 
 	LOG_F(INFO, "Graphics Releases Done!");
 }
+
+void Graphics::EndFrame() const
+{
+	pSwap->Present(1u, 0u);
+}

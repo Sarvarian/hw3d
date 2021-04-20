@@ -10,7 +10,7 @@
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-int Play(const HWND hWnd);
+int Play(const HWND& hWnd, const Graphics& graphics);
 
 
 int main(int argc, char** argv)
@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	loguru::init(argc, argv);
 	Window window{ GetModuleHandle(NULL), WndProc };
 	Graphics graphics = Graphics(window.hWnd);
-	int res = Play(window.hWnd);
+	int res = Play(window.hWnd, graphics);
 	return res;
 }
 
@@ -56,7 +56,7 @@ std::optional<int> ProcessMessages()
 	return {};
 }
 
-int Play(const HWND hWnd)
+int Play(const HWND& hWnd, const Graphics& graphics)
 {
 	constexpr double max_frame_delay = (1. / 60.) * 1000.;
 	FILETIME frame_begin_time = { 0 };
@@ -79,6 +79,8 @@ int Play(const HWND hWnd)
 
 		// Loop Begin
 
+
+		graphics.EndFrame();
 
 		// Calculating delta
 		ftc_first_time.HighPart = frame_end_time.dwHighDateTime;

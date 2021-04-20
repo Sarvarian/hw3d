@@ -4,7 +4,7 @@
 #include "resource.h"
 #include "loguru/loguru.hpp"
 #include "loguru/loguru.cpp"
-using namespace loguru;
+
 
 HWND build_window(HINSTANCE hInstance, LPCWCHAR pClassName);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
